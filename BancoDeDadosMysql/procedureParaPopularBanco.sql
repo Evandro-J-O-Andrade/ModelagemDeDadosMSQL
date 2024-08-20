@@ -16,7 +16,7 @@ CREATE PROCEDURE popularTabela(quantasLinhas INT)
        
        -- da aqui voce coloca o query
 	     INSERT INTO tb_Instituicao (Nome,Email)
-                              VALUES(concat('Jasmim ',contador),concat('Teste@test',novoId));
+                              VALUES(concat('larissa',contador),concat('Teste@test',novoId));
                               
          SET idInst = last_insert_id();
          

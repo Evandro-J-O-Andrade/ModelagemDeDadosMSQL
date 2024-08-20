@@ -1,0 +1,278 @@
+DELIMITER $$
+
+
+DROP DATABASE IF EXISTS newwav_correnteDoBem;
+
+$$
+
+CREATE DATABASE IF NOT EXISTS newwav_correnteDoBem
+  CHARSET = utf8
+  COLLATE = utf8_general_ci
+
+$$
+
+USE newwav_correnteDoBem;
+
+$$
+
+DROP TABLE IF EXISTS tb_Doador;
+
+$$
+
+CREATE TABLE IF NOT EXISTS tb_Doador (
+  Id_Doador BIGINT(10) UNSIGNED UNIQUE NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  Nome VARCHAR(150) NOT NULL,
+  Email VARCHAR(150) NOT NULL,
+  Senha varchar(250) NOT NULL
+)
+ CHARSET = utf8
+ ENGINE = InnoDB;
+
+$$
+
+DROP TABLE IF EXISTS tb_Instituicao;
+
+$$
+
+CREATE TABLE IF NOT EXISTS tb_Instituicao (
+  Id_Inst BIGINT (10) UNSIGNED UNIQUE NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  Nome VARCHAR (100)  NOT NULL,
+  Email VARCHAR (150) UNIQUE NOT NULL
+) 
+ CHARSET = utf8
+ ENGINE = InnoDB;
+  
+$$
+
+DROP TABLE IF EXISTS tb_Endereco;
+
+$$
+
+CREATE TABLE IF NOT EXISTS tb_Endereco (
+  Id_Lougra BIGINT(10) UNSIGNED UNIQUE NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  Tipo VARCHAR (300) NOT NULL,
+  Lougradouro VARCHAR(500) NOT NULL,
+  Numero INT(10) NOT NULL,
+  Cidade VARCHAR(250) NOT NULL,
+  Bairro VARCHAR (250) NOT NULL,
+  Estado VARCHAR (300) NOT NULL,
+  CP INT (10) NOT NULL 
+)
+  CHARSET = utf8
+  ENGINE = InnoDB;
+
+$$
+
+DROP TABLE IF EXISTS tb_Produtos;
+
+$$
+
+CREATE TABLE IF NOT EXISTS tb_Produtos(
+  Id_Produto BIGINT(10)  UNSIGNED UNIQUE NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  Nome VARCHAR(150) NOT NULL,
+  Quantidade BIGINT(10) NOT NULL,
+  Id_Doador BIGINT(10) UNSIGNED NOT NULL
+) 
+  CHARSET = utf8
+  ENGINE = InnoDB;
+  
+$$
+
+ ALTER TABLE tb_Produtos ADD CONSTRAINT fk_Doador_Produto FOREIGN KEY(Id_Doador)REFERENCES tb_Doador(Id_Doador);
+  
+$$ 
+
+DROP TABLE IF EXISTS tb_Doacoes;
+
+$$
+
+CREATE TABLE IF NOT EXISTS tb_Doacoes(
+  Id_Doacao BIGINT(10) UNSIGNED UNIQUE NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  Data_Doacao DATETIME,
+  Id_Inst BIGINT(10) UNSIGNED NOT NULL,
+  Id_Doador BIGINT(10) UNSIGNED NOT NULL 
+  )
+  CHARSET = utf8
+  ENGINE = InnoDB;
+$$  
+
+DROP TABLE IF EXISTS tb_Necessidade;
+
+$$
+
+CREATE TABLE IF NOT EXISTS tb_Necessidade(
+  Id_Necess BIGINT(10) UNSIGNED UNIQUE NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  Nome VARCHAR(250) NOT NULL,
+  Quantidade VARCHAR(300) NOT NULL
+)
+  CHARSET = utf8
+  ENGINE = InnoDB;
+$$
+ 
+$$
+
+ ALTER TABLE tb_Doacoes 
+ ADD INDEX fk_Inst_idx (Id_Inst ASC),
+ ADD INDEX fk_Doador_idx(Id_Doador ASC),
+ ADD CONSTRAINT fk_Doacao_Inst
+ FOREIGN KEY (Id_Inst)
+ REFERENCES tb_Instituicao (Id_Inst),
+ ADD CONSTRAINT fk_Inst_Doa
+ FOREIGN KEY(Id_Doador)
+ REFERENCES tb_Doador(Id_Doador)
+ ON DELETE NO ACTION
+ ON UPDATE NO ACTION;
+ 
+$$
+
+DROP TABLE IF EXISTS tb_Inst_Doador;
+
+$$
+CREATE TABLE IF NOT EXISTS tb_Inst_Doador(
+  Id BIGINT(10) UNSIGNED UNIQUE  NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  Data_Modficao DATETIME,
+  Id_Inst BIGINT(10) UNSIGNED NOT NULL, 
+  Id_Doador BIGINT(10) UNSIGNED NOT NULL
+)
+ CHARSET = utf8
+ ENGINE = InnoDB;
+ 
+$$
+
+ALTER TABLE tb_Inst_Doador 
+ADD INDEX fk_Instituicao_Doador_idx (Id_Inst ASC),
+ADD INDEX fk_Doador_Instituicao_idx (Id_Doador ASC),
+ADD CONSTRAINT fk_Instituicao_Doador FOREIGN KEY (Id_Inst)
+REFERENCES tb_Instituicao(Id_Inst)
+ON DELETE RESTRICT
+ON UPDATE RESTRICT,
+ADD CONSTRAINT fk_Doador_Instituicao FOREIGN KEY(Id_Doador)
+REFERENCES tb_Doador(Id_Doador)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION;
+  
+$$
+
+DROP TABLE IF EXISTS tb_Prod_Doacao;
+
+$$
+
+CREATE TABLE IF NOT EXISTS tb_Prod_Doacao(
+  Id_Produto BIGINT(10) UNSIGNED NOT NULL,
+  Id_Doacao BIGINT(10) UNSIGNED NOT NULL
+)
+  CHARSET = utf8
+  ENGINE = InnoDB;
+  
+$$
+
+ALTER TABLE tb_Prod_Doacao
+ADD INDEX fk_Id_Produto_idx(Id_Produto),
+ADD INDEX fk_Id_Doacao_idx(Id_Doacao),
+ADD CONSTRAINT fk_produto_doacao FOREIGN KEY(Id_Produto)REFERENCES tb_Produtos(Id_Produto),
+ADD CONSTRAINT fk_doacao_produto FOREIGN KEY(Id_Doacao)REFERENCES tb_Doacoes(Id_Doacao)
+ON DELETE CASCADE 
+ON UPDATE CASCADE;
+  
+$$
+
+DROP TABLE IF EXISTS tb_Necess_Institu;
+
+$$
+
+CREATE TABLE IF NOT EXISTS tb_Necess_Institu(
+  Id_NecessInst BIGINT(10) UNSIGNED UNIQUE NOT NULL  PRIMARY KEY AUTO_INCREMENT,
+  Id_Necess BIGINT(10) UNSIGNED  NOT NULL,
+  Id_Inst BIGINT(10) UNSIGNED  NOT NULL
+)
+CHARSET = utf8 
+ENGINE = InnoDB;
+
+$$
+
+ALTER TABLE tb_Necess_Institu
+ADD INDEX fk_Id_Necess_idx(Id_Necess),
+ADD INDEX fk_Id_Inst_idx(Id_Inst),
+ADD CONSTRAINT fk_Necess_doacao FOREIGN KEY(Id_Necess)REFERENCES tb_Necessidade(Id_Necess),
+ADD CONSTRAINT fk_Inst_Necess FOREIGN KEY(Id_Inst)REFERENCES tb_Instituicao(Id_Inst)
+ON DELETE CASCADE 
+ON UPDATE CASCADE;
+  
+$$
+	
+DROP TABLE IF EXISTS tb_Ender_Insti;
+
+$$    
+
+CREATE TABLE IF NOT EXISTS tb_Ender_Insti(
+  Id_EnderInst BIGINT(10) UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  Id_Inst BIGINT(10) UNSIGNED  NOT NULL,	
+  Id_Lougra BIGINT(10) UNSIGNED NOT NULL 
+)
+
+  CHARSET = utf8
+  ENGINE = InnoDB;
+
+$$
+
+ALTER TABLE tb_Ender_Insti
+ADD INDEX fk_Id_Inst_idx(Id_Inst),
+ADD INDEX fk_Id_Lougra_idx(Id_Lougra),
+ADD CONSTRAINT fk_Ender_Inst FOREIGN KEY(Id_Inst)REFERENCES tb_Instituicao(Id_Inst),
+ADD CONSTRAINT fk_Lougra_Inst FOREIGN KEY(Id_Lougra)REFERENCES tb_Endereco(Id_Lougra)
+ON DELETE CASCADE 
+ON UPDATE CASCADE;
+
+$$
+
+DROP TABLE IF EXISTS tb_ModDoador;
+
+$$
+
+CREATE TABLE IF NOT EXISTS tb_ModDoador (
+  Id_ModDoador BIGINT(10) UNSIGNED NOT NULL,
+  Nome VARCHAR(150) NOT NULL,
+  Email VARCHAR(150) NOT NULL,
+  Usuario_At varchar(500) NOT NULL,
+  Senha varchar(250) NOT NULL,
+  Data_MdDoador DATETIME 
+)
+ CHARSET = utf8
+ ENGINE = InnoDB;
+
+$$
+
+DROP TABLE IF EXISTS tb_ModInstituicao;
+
+$$
+CREATE TABLE IF NOT EXISTS tb_ModInstituicao ( 
+  Id_ModInst BIGINT(10) UNSIGNED  NOT NULL , 
+  Nome VARCHAR(100)  NOT NULL,
+  Email VARCHAR(150) UNIQUE NOT NULL, 
+  Usuario_At varchar(500) NOT NULL
+
+) 
+ CHARSET = utf8
+ ENGINE = InnoDB;
+  
+$$
+
+DROP TABLE IF EXISTS tb_ModProdutos;
+
+$$
+
+CREATE TABLE IF NOT EXISTS tb_ModProdutos(
+  Id_ModProduto BIGINT(10)  UNSIGNED  NOT NULL ,
+  Nome VARCHAR(150) NOT NULL,
+  Usuario_At varchar(500) NOT NULL,
+  Quantidade BIGINT(10) NOT NULL,
+  Id_Doador BIGINT(10) UNSIGNED NOT NULL
+) 
+  CHARSET = utf8
+  ENGINE = InnoDB;
+  
+$$
+  
+DELIMITER ;
+
+

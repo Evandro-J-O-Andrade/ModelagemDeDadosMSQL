@@ -1,2 +1,2 @@
 # ModelagemDeDadosMSQL
- Linguagem SQL
+Mysql
